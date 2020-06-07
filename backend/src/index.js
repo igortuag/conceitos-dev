@@ -1,94 +1,60 @@
+// Index do desafio
 const express = require('express');
-const { uuid, isUuid } = require('uuidv4') // função para criação de um Id unico e universal
+const {uuid, isUuid} = require('uuidv4')
 
 const app = express();
-
 app.use(express.json())
 
-const projects = [];
+const products = [ ];
 
-function logRequests(request, response, next) {
-  const { method, url } = request;
+app.get('/products', (request, response) => {
+  const name = request.query
 
-  const logLabel = `[${method.toUpperCase()}] ${url}`;
+  // const results = name 
+  //   ? products.filter(product => product.name.includes(name))
+  //   : products
 
-  console.log('1');
-  console.time(logLabel);
+  return response.json(products)
+})
+
+app.post('/products', (request, response) => {
+  const { name, price } = request.body;
+  const product = { id: uuid(), name, price}
   
-  next();
-  console.log('2');
-  console.timeEnd(logLabel);
-}
-
-function validateProjectId(request, response, next) {
-  const { id } = request.params;
-
-  if (!isUuid(id)) {
-    return response.status(400).json({ error: 'Invalid project ID.' });
-  }
-
-  return next();
-}
-
-app.use(logRequests);
-app.use('/projects/:id', validateProjectId) // Outra forma de aplicar middleware especificando o tipo de rota
-
-app.get('/projects', (request, response) => {
-  console.log('3');
-  const { title } = request.query;
-
-  const results = title
-    ? projects.filter(project => project.title.includes(title))
-    : projects; // Filtrar pelo titulo se ele for enviado
-
-  return response.json(results);
-});
-
-app.post('/projects', (request, response) => {
-  const { title, owner } = request.body;
-
-  const project = { id: uuid(), title, owner };
-
-  projects.push(project); //Jogar o projeto no final do Array
-  
-  return response.json(project);
+  products.push(product)
+  return response.json(product)
 })
 
-app.put('/projects/:id', (request, response) => {
+app.put('/products/:id', (request, response) => {
   const { id } = request.params;
-  const { title, owner } = request.body;
+  const { name, price } = request.body
 
-  const projectIndex = projects.findIndex(project => project.id === id) // Função find para achar o projeto por ID
+  const productIndex = products.findIndex(product => product.id === id)
 
-  if (projectIndex < 0) {
-    return response.status(400).json({ error: 'Project not found.' }) //Retorna um erro 400(Erro generico) 
+  if (productIndex < 0) {
+    return response.status(400).json({ error: "Product Id not found" })
   }
 
-  const project = {
-    id,
-    title,
-    owner,
-  };
+  const product = { id, name, price}
 
-  projects[projectIndex] = project;
+  products[productIndex] = product
 
-  return response.json(project);
+  return response.json(product)
 })
 
-app.delete('/projects/:id', (request, response) => {
+app.delete('/products/:id', (request, response) => {
   const { id } = request.params;
+  const { name, price } = request.body
 
-  const projectIndex = projects.findIndex(project => project.id === id) // Função find para achar o projeto por ID
+  const productIndexOf = products.findIndex(p => p.id === id)
 
-  if (projectIndex < 0) {
-    return response.status(400).json({ error: 'Project not found.' }) //Retorna um erro 400(Erro generico) 
+  if(products < 0) {
+    return response.status(400).json({ error: "Product Id not found" })
   }
 
-  projects.splice(projectIndex, 1); //Metodo para remover que passa o indice e a quantidade a remover do array
+  products.splice(productIndexOf, 1)
 
-  return response.status(204).send(); // Metodo que envia uma resposta vazia
+  return response.status(240).send()
 })
 
-app.listen(3333, () => {
-  console.log('🚀 Back-end started on port 3333!')
-});
+app.listen(3333)
