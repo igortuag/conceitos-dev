@@ -1,5 +1,5 @@
 const express = require('express');
-const { uuid } = require('uuidv4') // função para criação de um Id unico e universal
+const { uuid, isUuid } = require('uuidv4') // função para criação de um Id unico e universal
 
 const app = express();
 
@@ -7,7 +7,34 @@ app.use(express.json())
 
 const projects = [];
 
+function logRequests(request, response, next) {
+  const { method, url } = request;
+
+  const logLabel = `[${method.toUpperCase()}] ${url}`;
+
+  console.log('1');
+  console.time(logLabel);
+  
+  next();
+  console.log('2');
+  console.timeEnd(logLabel);
+}
+
+function validateProjectId(request, response, next) {
+  const { id } = request.params;
+
+  if (!isUuid(id)) {
+    return response.status(400).json({ error: 'Invalid project ID.' });
+  }
+
+  return next();
+}
+
+app.use(logRequests);
+app.use('/projects/:id', validateProjectId) // Outra forma de aplicar middleware especificando o tipo de rota
+
 app.get('/projects', (request, response) => {
+  console.log('3');
   const { title } = request.query;
 
   const results = title
