@@ -1,4 +1,5 @@
 const express = require('express');
+const { uuid } = require('uuidv4') // função para criação de um Id unico e universal
 
 const app = express();
 
@@ -7,51 +8,58 @@ app.use(express.json())
 const projects = [];
 
 app.get('/projects', (request, response) => {
-  const {title, owner} = request.query;
+  const { title } = request.query;
 
-  console.log(title);
-  console.log(owner);
+  const results = title
+    ? projects.filter(project => project.title.includes(title))
+    : projects; // Filtrar pelo titulo se ele for enviado
 
-  return response.json([
-    'Projeto 1',
-    'Projeto 2',
-    'Projeto 3',
-    'Projeto 4',
-  ]);
+  return response.json(results);
 });
 
 app.post('/projects', (request, response) => {
   const { title, owner } = request.body;
 
-  console.log(title);
-  console.log(owner);
+  const project = { id: uuid(), title, owner };
+
+  projects.push(project); //Jogar o projeto no final do Array
   
-  return response.json([
-    'Projeto 1',
-    'Projeto 2',
-    'Projeto 3',
-    'Projeto 4',
-  ]);
+  return response.json(project);
 })
 
 app.put('/projects/:id', (request, response) => {
-  const params = request.params;
-  
-  console.log(params);
+  const { id } = request.params;
+  const { title, owner } = request.body;
 
-  return response.json([
-    'Projeto 5',
-    'Projeto 6',
-    'Projeto 3',
-    'Projeto 4',
-  ]);
+  const projectIndex = projects.findIndex(project => project.id === id) // Função find para achar o projeto por ID
+
+  if (projectIndex < 0) {
+    return response.status(400).json({ error: 'Project not found.' }) //Retorna um erro 400(Erro generico) 
+  }
+
+  const project = {
+    id,
+    title,
+    owner,
+  };
+
+  projects[projectIndex] = project;
+
+  return response.json(project);
 })
 
 app.delete('/projects/:id', (request, response) => {
-  return response.json([
-    'Projeto 3',
-    'Projeto 4',
-  ]);
+  const { id } = request.params;
+
+  const projectIndex = projects.findIndex(project => project.id === id) // Função find para achar o projeto por ID
+
+  if (projectIndex < 0) {
+    return response.status(400).json({ error: 'Project not found.' }) //Retorna um erro 400(Erro generico) 
+  }
+
+  projects.splice(projectIndex, 1); //Metodo para remover que passa o indice e a quantidade a remover do array
+
+  return response.status(204).send(); // Metodo que envia uma resposta vazia
 })
 
 app.listen(3333, () => {
