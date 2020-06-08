@@ -1,3 +1,16 @@
-const soma = (a, b) => (1 + b)
+import React from 'react';
+import ReactDom from 'react-dom'
+import { render } from 'react-dom';
 
-console.log(soma(1, 3))
+import App from './App';
+import Header from './components/Header'
+
+render(
+  <>
+    <Header />
+    <Header />
+    <Header />
+    <Header />
+  </>
+  ,document.getElementById('app')
+  );
