@@ -1,0 +1,17 @@
+body {
+  background-color:#6B5B95;
+  color: #ffffff;
+  text-align: center;
+}
+
+h1, h2 {
+}
+
+.testButton {
+  text-align: center;
+  justify-content: center;
+}
+
+li {
+  list-style-type: none;
+}
